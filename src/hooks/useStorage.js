@@ -243,8 +243,33 @@ const useStorage = () => {
     return totals;
   }, []);
 
+  const exportData = useCallback(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      return stored || '{"days":{}}';
+    } catch (e) {
+      return '';
+    }
+  }, []);
+
+  const importData = useCallback((jsonData) => {
+    try {
+      const parsed = JSON.parse(jsonData);
+      if (parsed && parsed.days) {
+        localStorage.setItem(STORAGE_KEY, jsonData);
+        setData(parsed);
+        return true;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    return false;
+  }, []);
+
   return {
     data,
+    exportData,
+    importData,
     getApiKey,
     setApiKey,
     removeApiKey,

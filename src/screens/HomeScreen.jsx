@@ -6,6 +6,28 @@ const HomeScreen = ({ storage, onNavigate }) => {
   const [newApiKey, setNewApiKey] = useState('');
   const [newProvider, setNewProvider] = useState(storage.getProvider());
 
+  const handleExport = async () => {
+    const dataStr = storage.exportData();
+    try {
+      await navigator.clipboard.writeText(dataStr);
+      alert('تم نسخ البيانات! افتح لينك Vercel الجديد واعمل "استرجاع".');
+    } catch (e) {
+      prompt('انسخ هذا النص للنسخ الاحتياطي:', dataStr);
+    }
+  };
+
+  const handleImport = () => {
+    const text = prompt('الصق البيانات اللي نسختها من اللينك القديم هنا:');
+    if (text) {
+      if (storage.importData(text)) {
+        alert('تم استرجاع البيانات بنجاح!');
+        setShowSettings(false);
+      } else {
+        alert('البيانات غير صالحة.');
+      }
+    }
+  };
+
   const days = storage.getDays();
 
   const today = new Date().toISOString().split('T')[0];
@@ -180,6 +202,21 @@ const HomeScreen = ({ storage, onNavigate }) => {
               >
                 حفظ الإعدادات
               </button>
+
+              <div className="grid grid-cols-2 gap-2 mt-4">
+                <button
+                  onClick={handleExport}
+                  className="w-full py-3 rounded-btn font-bold text-sm bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 border border-blue-500/20 transition-all flex justify-center items-center gap-2"
+                >
+                  <span>📋</span> نسخ البيانات
+                </button>
+                <button
+                  onClick={handleImport}
+                  className="w-full py-3 rounded-btn font-bold text-sm bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30 border border-emerald-500/20 transition-all flex justify-center items-center gap-2"
+                >
+                  <span>📥</span> استرجاع
+                </button>
+              </div>
 
               <button
                 onClick={() => setShowSettings(false)}
