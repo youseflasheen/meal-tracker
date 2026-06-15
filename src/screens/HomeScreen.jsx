@@ -5,6 +5,7 @@ const HomeScreen = ({ storage, onNavigate }) => {
   const [showSettings, setShowSettings] = useState(false);
   const [newApiKey, setNewApiKey] = useState('');
   const [newProvider, setNewProvider] = useState(storage.getProvider());
+  const [tapCount, setTapCount] = useState(0);
 
   const handleExport = () => {
     const dataStr = storage.exportData();
@@ -138,7 +139,12 @@ const HomeScreen = ({ storage, onNavigate }) => {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="w-10 h-1 bg-gray-700 rounded-full mx-auto mb-6"></div>
-            <h2 className="text-lg font-bold text-white mb-4">⚙️ الإعدادات</h2>
+            <h2 
+              className="text-lg font-bold text-white mb-4 select-none"
+              onClick={() => setTapCount(prev => prev + 1)}
+            >
+              ⚙️ الإعدادات
+            </h2>
 
             <div className="space-y-4">
               {/* Current provider display */}
@@ -208,25 +214,27 @@ const HomeScreen = ({ storage, onNavigate }) => {
                 حفظ الإعدادات
               </button>
 
-              <div className="grid grid-cols-2 gap-2 mt-4">
-                <button
-                  onClick={handleExport}
-                  className="w-full py-3 rounded-btn font-bold text-sm bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 border border-blue-500/20 transition-all flex justify-center items-center gap-2"
-                >
-                  <span>💾</span> حفظ نسخة
-                </button>
-                <div className="relative w-full">
-                  <input
-                    type="file"
-                    accept=".json"
-                    onChange={handleImport}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  />
-                  <div className="w-full h-full py-3 rounded-btn font-bold text-sm bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30 border border-emerald-500/20 transition-all flex justify-center items-center gap-2 pointer-events-none">
-                    <span>📥</span> استرجاع
+              {tapCount >= 5 && (
+                <div className="grid grid-cols-2 gap-2 mt-4 animate-fade-in">
+                  <button
+                    onClick={handleExport}
+                    className="w-full py-3 rounded-btn font-bold text-sm bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 border border-blue-500/20 transition-all flex justify-center items-center gap-2"
+                  >
+                    <span>💾</span> حفظ نسخة
+                  </button>
+                  <div className="relative w-full">
+                    <input
+                      type="file"
+                      accept=".json"
+                      onChange={handleImport}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                    <div className="w-full h-full py-3 rounded-btn font-bold text-sm bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30 border border-emerald-500/20 transition-all flex justify-center items-center gap-2 pointer-events-none">
+                      <span>📥</span> استرجاع
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
               <button
                 onClick={() => setShowSettings(false)}
