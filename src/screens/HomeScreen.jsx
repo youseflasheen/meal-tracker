@@ -6,26 +6,31 @@ const HomeScreen = ({ storage, onNavigate }) => {
   const [newApiKey, setNewApiKey] = useState('');
   const [newProvider, setNewProvider] = useState(storage.getProvider());
 
-  const handleExport = async () => {
+  const handleExport = () => {
     const dataStr = storage.exportData();
-    try {
-      await navigator.clipboard.writeText(dataStr);
-      alert('تم نسخ البيانات! افتح لينك Vercel الجديد واعمل "استرجاع".');
-    } catch (e) {
-      prompt('انسخ هذا النص للنسخ الاحتياطي:', dataStr);
-    }
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'meal-tracker-backup.json';
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
-  const handleImport = () => {
-    const text = prompt('الصق البيانات اللي نسختها من اللينك القديم هنا:');
-    if (text) {
+  const handleImport = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target.result;
       if (storage.importData(text)) {
         alert('تم استرجاع البيانات بنجاح!');
         setShowSettings(false);
       } else {
-        alert('البيانات غير صالحة.');
+        alert('البيانات في هذا الملف غير صالحة.');
       }
-    }
+    };
+    reader.readAsText(file);
   };
 
   const days = storage.getDays();
@@ -208,14 +213,19 @@ const HomeScreen = ({ storage, onNavigate }) => {
                   onClick={handleExport}
                   className="w-full py-3 rounded-btn font-bold text-sm bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 border border-blue-500/20 transition-all flex justify-center items-center gap-2"
                 >
-                  <span>📋</span> نسخ البيانات
+                  <span>💾</span> حفظ نسخة
                 </button>
-                <button
-                  onClick={handleImport}
-                  className="w-full py-3 rounded-btn font-bold text-sm bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30 border border-emerald-500/20 transition-all flex justify-center items-center gap-2"
-                >
-                  <span>📥</span> استرجاع
-                </button>
+                <div className="relative w-full">
+                  <input
+                    type="file"
+                    accept=".json"
+                    onChange={handleImport}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                  <div className="w-full h-full py-3 rounded-btn font-bold text-sm bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30 border border-emerald-500/20 transition-all flex justify-center items-center gap-2 pointer-events-none">
+                    <span>📥</span> استرجاع
+                  </div>
+                </div>
               </div>
 
               <button
